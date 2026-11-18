@@ -65,7 +65,7 @@ def download(symbol, interval, market, months, output):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--symbol", default="BTCUSDT")
-    p.add_argument("--interval", default="1h")
+    p.add_argument("--interval", default="2h")
     p.add_argument("--market", choices=["spot", "futures"], default="futures")
     p.add_argument("--months", type=int, default=12)
     p.add_argument("--output", default="data/raw")
