@@ -19,10 +19,10 @@ Projeto para baixar candles históricos públicos da Binance e comparar duas est
 Python 3.10+; somente biblioteca padrão.
 
 ```bash
-python scripts/download_binance.py --symbol BTCUSDT --interval 1h --months 12 --market futures
-python scripts/download_binance.py --symbol ETHUSDT --interval 1h --months 12 --market futures
+python scripts/download_binance.py --symbol BTCUSDT --interval 2h --months 12 --market futures
+python scripts/download_binance.py --symbol ETHUSDT --interval 2h --months 12 --market futures
 ```
 
-O padrão usa **12 meses calendários completos anteriores ao mês atual**; arquivos CSV são salvos em `data/raw/`. Dados públicos: https://data.binance.vision/ (repositório de documentação: https://github.com/binance/binance-public-data). Para mercado spot use `--market spot`. A periodicidade deve ser a mesma usada no TradingView.
+O padrão usa **12 meses calendários completos anteriores ao mês atual (o período exato de 18/11/2025 a 18/11/2026 exige complementar os meses parciais com dados diários)**; arquivos CSV são salvos em `data/raw/`. Dados públicos: https://data.binance.vision/ (repositório de documentação: https://github.com/binance/binance-public-data). Para mercado spot use `--market spot`. A periodicidade deve ser a mesma usada no TradingView.
 
 Os arquivos de dados não devem ser commitados em massa no GitHub; prefira baixar localmente ou usar armazenamento de artefatos. Dados históricos não garantem desempenho futuro.
