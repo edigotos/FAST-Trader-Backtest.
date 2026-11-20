@@ -1,4 +1,6 @@
 data/raw/
+data/*.tar.gz
+*.log
 __pycache__/
 *.pyc
 .venv/

@@ -1,6 +1,15 @@
 name: Historical data collection
 on:
   workflow_dispatch:
+    inputs:
+      months:
+        description: "Janela em meses calendarios"
+        required: false
+        default: "12"
+      symbols:
+        description: "Lista de simbolos separada por virgula"
+        required: false
+        default: "BTCUSDT,ETHUSDT,ALICEUSDT,XRPUSDT,SOLUSDT"
   push:
     paths:
       - '.github/workflows/download-history.yml'
@@ -14,11 +23,15 @@ jobs:
           python-version: '3.12'
       - name: Download 2h Binance Futures candles
         run: |
-          for symbol in BTCUSDT ETHUSDT SOLUSDT XRPUSDT ALICEUSDT BNBUSDT; do
-            python scripts/download_binance.py --symbol "$symbol" --interval 2h --months 12 --market futures
-          done
+          SYMBOLS="${{ inputs.symbols || 'BTCUSDT,ETHUSDT,ALICEUSDT,XRPUSDT,SOLUSDT' }}"
+          MONTHS="${{ inputs.months || '12' }}"
+          python scripts/download_binance.py --symbols "$SYMBOLS" \
+            --interval 2h --market futures --months "$MONTHS" --jobs 6
+          python scripts/backfill_gaps.py --dataset-dir data --market futures --interval 2h
       - uses: actions/upload-artifact@v4
         with:
           name: binance-futures-2h-historical
-          path: data/raw/
+          path: |
+            data/raw/
+            data/futures/2h/
           retention-days: 7
