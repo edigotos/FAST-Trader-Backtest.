@@ -14,7 +14,7 @@ jobs:
           python-version: '3.12'
       - name: Download 2h Binance Futures candles
         run: |
-          for symbol in BTCUSDT ETHUSDT SOLUSDT XRPUSDT BNBUSDT; do
+          for symbol in BTCUSDT ETHUSDT SOLUSDT XRPUSDT ALICEUSDT BNBUSDT; do
             python scripts/download_binance.py --symbol "$symbol" --interval 2h --months 12 --market futures
           done
       - uses: actions/upload-artifact@v4
