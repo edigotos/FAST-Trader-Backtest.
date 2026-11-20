@@ -34,8 +34,8 @@ Arquivos: `data/futures/2h/<SÍMBOLO>.csv`, a série longa `data/futures/2h/ALL_
 `symbol, open_time, open, high, low, close, volume, close_time, quote_volume, trades, taker_buy_base, taker_buy_quote, open_utc, close_utc`
 
 - `open_time` / `close_time` em **milissegundos UTC** (epoch); `open_utc` / `close_utc` são a mesma data em texto legível, para conferência visual e alinhamento com o TradingView.
-- Grade **contínua**: cada par cobre todos os slots de 2h entre o primeiro e o último candle, sem buracos. Os 120 candles de XRP/SOL faltantes nos ZIPs de fev–abr/2022 foram recuperados da API REST (`scripts/backfill_gaps.py`) — não eram paradas de mercado, e sim falha de publicação na Vision.
-- Janela do estudo de 12 meses: **2025-11-20 → 2026-11-19** (1.463 candles por par). Não há ajuste de fuso no CSV: tudo em UTC.
+- Grade **contínua**: cada par cobre todos os slots de 2h entre o primeiro e o último candle, sem buracos. Os 120 candles de XRP/SOL faltantes nos ZIPs mensais de fev–abr/2022 não eram parada de mercado, e sim falha de publicação: foram repostos pelos ZIPs **diários** da própria Vision (`scripts/backfill_gaps.py`) e conferidos contra a API REST — 60/60 linhas idênticas em cada par.
+- Janela do estudo de 12 meses: **2025-11-20 00:00 → 2026-11-19 22:00 UTC** = 4.380 candles por par; no recorte exato 18/11/2025 → 18/11/2026 são 4.392. Não há ajuste de fuso no CSV: tudo em UTC.
 
 ## Baixar histórico
 
@@ -50,13 +50,38 @@ python scripts/download_binance.py --symbols BTCUSDT,ETHUSDT,ALICEUSDT,XRPUSDT,S
 python scripts/download_binance.py --symbols BTCUSDT,ETHUSDT,ALICEUSDT,XRPUSDT,SOLUSDT \
     --interval 2h --months 12
 
-# fechar buracos de publicação usando a API REST da Binance
+# fechar buracos de publicacao: default sao os ZIPs diarios da Vision (--source api forza a REST)
 python scripts/backfill_gaps.py --dataset-dir data --market futures --interval 2h
 ```
 
 O script grava os arquivos por mês/dia em `data/raw/` (fora do versionamento) e a série consolidada em `data/futures/2h/`. Mensal + diário são combinados automaticamente: o mês corrente, que ainda não tem ZIP mensal, é montado a partir dos ZIPs diários, então a série vai até ontem sem intervenção manual. Para mercado spot, use `--market spot`; a periodicidade deve ser a mesma usada no TradingView.
 
 ### Coleção ampla (todos os pares USDT)
+
+Snapshot **2026-11-20 16:40 UTC**, backfill aplicado às 16:51 UTC:
+
+| Métrica | Valor |
+|---|---:|
+| Pares USDT com série 2h | 918 |
+| Em negociação / delistados ou pausados | 517 / 401 |
+| Total de candles | 8.473.312 |
+| Janela | 2020-01-01 00:00 → 2026-11-19 22:00 UTC |
+| Tamanho descompactado | 1,36 GB |
+| Candles repostos dos ZIPs diários | 2.892 (50 pares) |
+| Pares com ausência estrutural | 16 |
+
+Listagens por ano: 2020 → 81, 2021 → 59, 2022 → 26, 2023 → 99, 2024 → 131,
+2025 → 241, 2026 → 281.
+
+O pacote completo (918 CSVs + `manifest.json`, 464 MB compactados) está no asset da
+release [`dataset-2h-all-usdt-2026-11-20`](../../releases/tag/dataset-2h-all-usdt-2026-11-20);
+o SHA-256 do arquivo é `9bb582a6d984cadebdf86bb5ba77afa10d8f0b4fd0afd8e8f180c715d1eb8738`.
+Um par equivale a um CSV por linha longa (`ALL_SYMBOLS.csv`), então o pacote não é
+commitado no histórico do git — apenas o índice `data/futures/2h/manifest_all_usdt.json`
+(contagem, janela, último close e SHA-256 de cada par).
+
+Cinco pastas listadas na Vision não têm ZIP mensal de 2h publicado e ficaram de fora:
+`哈基米USDT`, `币安人生USDT`, `我踏马来了USDT`, `牛来USDT`, `龙虾USDT`.
 
 ```bash
 # 923 pares USDT com histórico publicado na Vision (522 em negociação + 401 delistados/pausados)
